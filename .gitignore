@@ -1,0 +1,24 @@
+ 
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+locust_test.log
+
+# Local data
+output_dataset.jsonl.tar.gz
+head.txt
+
+# Environment variables
+.envrc
+ 
+
+# Milvus
+milvus_benchmark.log
+**.jsonl
+milvus-local/volumes
+**.gz
+data/output_dataset.jsonl.gz
