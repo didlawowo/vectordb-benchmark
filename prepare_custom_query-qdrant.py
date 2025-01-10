@@ -14,7 +14,7 @@ dense_model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=True, device="cuda")
 sparse_model = TextEmbedding("BAAI/bge-m3")
 
 # Configuration des clients Qdrant
-client = QdrantClient(url=os.environ["DB_URL"], api_key=os.environ["DB_API_KEY"])
+client = QdrantClient(url=os.environ["DB_URL"])
 
 
 # Configuration du vector store

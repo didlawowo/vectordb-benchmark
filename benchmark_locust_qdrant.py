@@ -7,8 +7,11 @@ import logging
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from common import COLLECTION_NAME
+import openlit
 
 logger = logging.getLogger(__name__)
+
+openlit.init(otlp_endpoint="http://127.0.0.1:4318")
 
 
 @events.request.add_listener

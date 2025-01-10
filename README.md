@@ -100,6 +100,14 @@ locust -f benchmark_locust_milvus.py --host http://localhost:19530
    - Bulk insertions
    - Metadata queries
 
+### locust interface
+
+![alt text](assets/image.png)
+
+### openlit interface
+
+![alt text](assets/image-1.png)
+
 ### Test Execution 🏃
 
 1. Start Locust for Milvus:

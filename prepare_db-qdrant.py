@@ -6,8 +6,9 @@ import json
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from common import DIMENSION, COLLECTION_NAME
+import openlit
 
-logger.level("INFO")
+openlit.init(otlp_endpoint="http://127.0.0.1:4318")
 
 
 def init_qdrant():
