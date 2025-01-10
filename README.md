@@ -1,169 +1,158 @@
-# Milvus-Qdrant Benchmark
+# Milvus-Qdrant Benchmark 🔍
 
-Ce repository contient un ensemble d'outils et de scripts pour effectuer des benchmarks comparatifs entre les bases de données vectorielles Milvus et Qdrant en utilisant Locust comme outil de test de charge.
+A comprehensive toolkit and collection of scripts for performing comparative benchmarks between Milvus and Qdrant vector databases using Locust as a load testing tool.
 
-## Structure du Projet
+## Project Structure 📂
 
+### Data Files (`/data`)
 
+- `dataset.csv`: Source dataset
+- `questions.txt`: Test query list
+- `testset.json`: Formatted test dataset
 
-### Données (`/data`)
-
-- `dataset.csv` : Jeu de données source
-- `questions.txt` : Liste des requêtes de test
-- `testset.json` : Jeu de données de test formaté
-
-### generer le dataset depuis l'archives
+### Generate Dataset from Archive 📦
 
 ```shell
+# 💾 Decompress the archive file
 gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
 ```
 
-### Configuration Milvus (`/milvus-local`)
+### Milvus Configuration (`/milvus-local`) 🛠️
 
-- `docker-compose.yaml` : Configuration Docker pour déployer Milvus localement
+- `docker-compose.yaml`: Docker configuration for local Milvus deployment
 
-### Scripts de Préparation
+### Preparation Scripts 📝
 
-- `prepare_custom_query.py` : Génération de requêtes personnalisées transform le question txt en testset.json
-- `prepare_dataset.py` : Préparation et transformation du jeu de données transforme le csv en jsonl
-- `prepare_milvus_db.py` : Initialisation et configuration de la base Milvus
-- `benchmark_locust_milvus.py` : Script de benchmark Locust pour Milvus
+- `prepare_custom_query.py`: Custom query generation (converts questions.txt to testset.json)
+- `prepare_dataset.py`: Dataset preparation and transformation (converts csv to jsonl)
+- `prepare_milvus_db.py`: Milvus database initialization and setup
+- `benchmark_locust_milvus.py`: Locust benchmark script for Milvus
 
-### Configuration et Dépendances
+### Project Configuration 🔧
 
-- `Pipfile` et `Pipfile.lock` : Gestion des dépendances Python avec Pipenv
-- `pyproject.toml` : Configuration du projet Python
-- `common.py` : Constantes et fonctions communes
+- `Pipfile` & `Pipfile.lock`: Python dependency management using Pipenv
+- `pyproject.toml`: Python project configuration
+- `common.py`: Shared constants and utility functions
 
-## Installation
+## Installation Guide 🚀
 
-### prérequis
+### Prerequisites
 
-- python3.11
+- Python 3.11
 - pip
 - pipenv
 
-----
+---
 
-1. Installer les dépendances :
+1. Install Dependencies:
+```bash
+pipenv install
+```
 
-   ```bash
-   pipenv install
-   ```
+## Milvus Setup ⚙️
 
-## Configuration de Milvus
+### Starting Milvus with Docker Compose
 
-### Démarrage de Milvus avec Docker Compose
+1. Launch Milvus Services:
+```bash
+cd milvus-local
+docker-compose up -d
+```
 
+2. Verify Service Status:
+```bash
+docker-compose ps
+```
 
+3. Initialize Database:
 
-1. Démarrer les services Milvus :
-
-   ```bash
-   cd milvus-local
-   docker-compose up -d
-   ```
-
-2. Vérifier que tous les services sont démarrés :
-
-   ```bash
-   docker-compose ps
-   ```
-
-3. Initialiser la base de données :
-
-### Configuration des Variables d'Environnement
+### Environment Variables Configuration 🌍
 
 ```bash
 export MILVUS_HOST=localhost
 export MILVUS_PORT=19530
 ```
 
-   ```bash
-   python prepare_milvus_db.py init
-   ```
+```bash
+python prepare_milvus_db.py init
+```
 
-## Tests de Performance avec Locust
+## Performance Testing with Locust 📊
 
-### Configuration de Locust
+### Locust Configuration
 
-1. Structure du script de test (`benchmark_locust_milvus.py`) :
+1. Test Script Structure (`benchmark_locust_milvus.py`):
+```python
+from locust import HttpUser, task, between
 
-   ```python
-   from locust import HttpUser, task, between
-   
-   class MilvusUser(HttpUser):
-       wait_time = between(1, 2)
-       
-       @task
-       def search_vectors(self):
-           # Définition des tâches de test
-   ```
+class MilvusUser(HttpUser):
+    wait_time = between(1, 2)
+    
+    @task
+    def search_vectors(self):
+        # Test task definitions
+```
 
-2. Types de tests implémentés :
-   - Recherche de vecteurs denses
-   - Recherche de vecteurs sparse
-   - Recherche hybride
-   - Insertions en masse
-   - Requêtes de métadonnées
+2. Implemented Test Types:
+   - Dense vector search
+   - Sparse vector search
+   - Hybrid search
+   - Bulk insertions
+   - Metadata queries
 
-### Exécution des Tests
+### Test Execution 🏃
 
-1. Démarrer Locust pour Milvus :
+1. Start Locust for Milvus:
+```bash
+locust -f benchmark_locust_milvus.py --host http://localhost:19530
+```
 
-   ```bash
-   locust -f benchmark_locust_milvus.py --host http://localhost:19530
-   ```
+2. Access Locust Web Interface:
+   - Navigate to `http://localhost:8089`
+   - Configure test parameters:
+     - Number of users: simulated user count
+     - Spawn rate: user creation rate
+     - Host: Milvus instance URL
 
-2. Accéder à l'interface Web de Locust :
-   - Ouvrir `http://localhost:8089` dans un navigateur
-   - Configurer le test :
-     - Number of users : nombre d'utilisateurs simulés
-     - Spawn rate : taux de création des utilisateurs
-     - Host : URL de l'instance Milvus
+3. Available Metrics:
+   - Response times (min, max, average)
+   - Requests per second
+   - Error rate
+   - Response time distribution
 
-3. Métriques disponibles :
-   - Temps de réponse (min, max, moyenne)
-   - Nombre de requêtes par seconde
-   - Taux d'erreur
-   - Distribution des temps de réponse
+### Test Customization 🎛️
 
-### Personnalisation des Tests
+To modify test scenarios:
 
-Pour modifier les scénarios de test :
+1. Edit queries in `questions.txt`
+2. Adjust parameters in `common.py`:
+```python
+DIMENSION = 768  # Vector dimensions
+COLLECTION_NAME = "benchmark_collection"
+DATABASE_NAME = "benchmark_db"
+```
 
-1. Éditer les requêtes dans `questions.txt`
-2. Ajuster les paramètres dans `common.py` :
+3. Modify load patterns in `benchmark_locust_milvus.py`:
+```python
+@task(3)  # Relative task weight
+def search_vectors(self):
+    # Search configuration
+```
 
-   ```python
-   DIMENSION = 768  # Dimension des vecteurs
-   COLLECTION_NAME = "benchmark_collection"
-   DATABASE_NAME = "benchmark_db"
-   ```
+### Results Analysis 📈
 
-3. Modifier les patterns de charge dans `benchmark_locust_milvus.py` :
+Locust generates detailed reports in HTML and CSV formats, including:
+- Real-time performance graphs
+- Per-endpoint statistics
+- Response time distribution
+- Error logs
 
-   ```python
-   @task(3)  # Poids relatif de la tâche
-   def search_vectors(self):
-       # Configuration de la recherche
-   ```
+Reports are saved in the `locust-reports/` directory after each test session.
 
-### Analyse des Résultats
+## Contributing 🤝
 
-Locust génère des rapports détaillés au format HTML et CSV, incluant :
+Contributions are welcome! Feel free to open an issue or submit a pull request to improve benchmarks or add new tests.
 
-- Graphiques de performance en temps réel
-- Statistiques par endpoint
-- Distribution des temps de réponse
-- Logs d'erreurs
+## License ⚖️
 
-Les rapports sont sauvegardés dans le dossier `locust-reports/` après chaque session de test.
-
-## Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à proposer une pull request pour améliorer les benchmarks ou ajouter de nouveaux tests.
-
-## Licence
-
-[License à définir]
+[License to be defined]
