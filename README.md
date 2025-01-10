@@ -1,4 +1,3 @@
-Je vais réorganiser le README pour le rendre plus cohérent et complet. Voici la structure proposée :
 
 # Milvus-Qdrant Benchmark 🔍
 
@@ -60,16 +59,19 @@ task start-qdrant  # For Qdrant
 ## Data Preparation 🛠️
 
 1. Extract dataset:
+
 ```bash
 task prepare-data
 ```
 
 2. Process dataset:
+
 ```bash
 python tools/prepare_dataset.py
 ```
 
 3. Prepare queries:
+
 ```bash
 # For Milvus
 python tools/prepare_custom_query-milvus.py generate_testset
@@ -81,6 +83,7 @@ python tools/prepare_custom_query-qdrant.py generate_testset
 ## Running Benchmarks 📊
 
 1. Start Locust:
+
 ```bash
 locust -f benchmark_locust_milvus.py --host http://localhost:19530
 ```
@@ -100,6 +103,7 @@ locust -f benchmark_locust_milvus.py --host http://localhost:19530
 ### Test Execution 🏃
 
 1. Start Locust for Milvus:
+
 ```bash
 locust -f benchmark_locust_milvus.py --host http://localhost:19530
 ```
@@ -123,6 +127,7 @@ To modify test scenarios:
 
 1. Edit queries in `questions.txt`
 2. Adjust parameters in `common.py`:
+
 ```python
 # common.py
 DIMENSION = 1024      # BGE-M3's dense vector dimension
@@ -156,6 +161,7 @@ task: Available tasks:
 ## Contributing 🤝
 
 Contributions are welcome! Feel free to:
+
 - Open issues
 - Submit pull requests
 - Improve documentation
@@ -163,4 +169,4 @@ Contributions are welcome! Feel free to:
 
 ## License ⚖️
 
-[License to be defined]
+MIT
