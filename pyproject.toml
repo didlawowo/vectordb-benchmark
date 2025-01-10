@@ -22,7 +22,6 @@ dependencies = [  # 📚 Dépendances
 ]
 
 [project.urls]  # 🔗 Liens optionnels
-repository = ""
+repository = "https://github.com/didlawowo/vectordb-benchmark.git"
 
-[tool.setuptools]  # 🛠️ Config setuptools
-packages = ["vectordb_benchmark"]
+ 

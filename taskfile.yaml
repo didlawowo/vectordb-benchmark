@@ -1,20 +1,57 @@
 version: '3'
 
-vars:
-  IMAGE_NAME: fizzbuzz2/portal-checker:v1.7.0
-
 tasks:
   build:
     desc: Build Docker image
     cmds:
     - docker compose build --push
 
-  run:
-    desc: Run the Docker container
+  start-milvus:
+    desc: Run the milvus stack
+    dir: milvus
     cmds:
     - docker compose up -d
 
-default:
-  desc: List available tasks
-  cmds:
-  - task --list
+  stop-milvus:
+    desc: Stop the milvus stack
+    dir: milvus
+    cmds:
+    - docker compose down
+
+  start-qdrant:
+    desc: Run the qdrant stack
+    dir: qdrant
+    cmds:
+    - docker compose up -d
+
+  shell:
+    desc: load python shell
+    cmds:
+    - pipenv shell
+
+  bootstap:
+    desc: Bootstrap the environment
+    cmds:
+    - pipenv install
+    - pipenv shell && uv pip install -r requirements.txt
+
+  stop-qdrant:
+    desc: Stop the qdrant stack
+    dir: qdrant
+    cmds:
+    - docker compose down
+
+  prepare-data:
+    desc: Prepare the data
+    cmds:
+    - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
+
+  init-db:
+    desc: Initialize the database
+    cmds:
+    - python prepare_milvus_db.py init
+
+  default:
+    desc: List available tasks
+    cmds:
+    - task --list

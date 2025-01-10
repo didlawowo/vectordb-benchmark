@@ -1,4 +1,3 @@
- 
 .idea/
 .vscode/
 *.swp
@@ -14,11 +13,10 @@ head.txt
 
 # Environment variables
 .envrc
- 
 
 # Milvus
 milvus_benchmark.log
 **.jsonl
-milvus-local/volumes
+milvus/volumes
 **.gz
 data/output_dataset.jsonl.gz

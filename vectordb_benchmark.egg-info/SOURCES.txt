@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+vectordb_benchmark.egg-info/PKG-INFO
+vectordb_benchmark.egg-info/SOURCES.txt
+vectordb_benchmark.egg-info/dependency_links.txt
+vectordb_benchmark.egg-info/requires.txt
+vectordb_benchmark.egg-info/top_level.txt
