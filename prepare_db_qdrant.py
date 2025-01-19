@@ -5,11 +5,12 @@ from qdrant_client.http import models
 import json
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from common import DIMENSION, COLLECTION_NAME
+from common import DIMENSION
 import openlit
 
 openlit.init(otlp_endpoint="http://127.0.0.1:4318")
 
+COLLECTION_NAME="benchmark"
 
 def init_qdrant():
     """Initialize Qdrant connection"""
@@ -81,7 +82,7 @@ def load_and_insert_data(jsonl_path: str):
                     id=(entry["prompt_id"]),
                     vector=entry["dense_vector"],
                     payload={
-                        "prompt": entry["prompt"],
+                        # "prompt": entry["prompt"],
                         "text": entry["text"],
                         # "description": entry["description"][:19900],
                         "sparse_vector": sparse_vector,
