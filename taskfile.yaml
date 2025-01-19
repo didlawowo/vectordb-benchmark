@@ -70,7 +70,7 @@ tasks:
   init-db-qdrant:
     desc: Initialize the database qdrant
     cmds:
-    - python prepare_db_qdrant.py init
+    - python prepare_db_qdrant.py ./data/output_dataset.jsonl
 
   default:
     desc: List available tasks

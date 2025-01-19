@@ -1,6 +1,6 @@
 services:
   clickhouse:
-    image: clickhouse/clickhouse-server:24.2.2
+    image: clickhouse/clickhouse-server:24.8-alpine
     container_name: clickhouse
     environment:
       CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}   
@@ -32,7 +32,7 @@ services:
     restart: always
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.94.0
+    image: otel/opentelemetry-collector-contrib:0.117.0
     container_name: otel-collector
     environment:
       INIT_DB_HOST: clickhouse

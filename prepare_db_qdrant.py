@@ -78,11 +78,12 @@ def load_and_insert_data(jsonl_path: str):
                 }
 
                 point = models.PointStruct(
-                    id=int(entry["id"]),
+                    id=(entry["prompt_id"]),
                     vector=entry["dense_vector"],
                     payload={
-                        "name": entry["name"],
-                        "description": entry["description"][:19900],
+                        "prompt": entry["prompt"],
+                        "text": entry["text"],
+                        # "description": entry["description"][:19900],
                         "sparse_vector": sparse_vector,
                     },
                 )
