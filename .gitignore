@@ -21,3 +21,4 @@ milvus/volumes
 **.gz
 data/output_dataset.jsonl.gz
 corrupted_lines.txt
+**.parquet

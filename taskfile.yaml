@@ -1,6 +1,16 @@
 version: '3'
 
 tasks:
+  download-hf-ds:
+    desc: Download the dataset from huggingface
+    cmds:
+    - "huggingface-cli download  --repo-type dataset  --resume-download  --max-workers 8  --local-dir ./data/trivia  mandarjoshi/trivia_qa"
+
+  prepare-data:
+    desc: Prepare the dataset before insert
+    cmds:
+    - python prepare_dataset_hf.py
+
   build:
     desc: Build Docker image
     cmds:
@@ -17,6 +27,12 @@ tasks:
     dir: milvus
     cmds:
     - docker compose down
+
+  start-openlit:
+    desc: Run the openlit stack
+    dir: openlit
+    cmds:
+    - docker compose up -d
 
   start-qdrant:
     desc: Run the qdrant stack
@@ -41,15 +57,20 @@ tasks:
     cmds:
     - docker compose down
 
-  prepare-data:
-    desc: Prepare the data
+  extract-gz-data:
+    desc: extract the data
     cmds:
     - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
 
-  init-db:
+  init-db-milvus:
     desc: Initialize the database
     cmds:
-    - python prepare_milvus_db.py init
+    - python prepare_db_milvus.py init
+
+  init-db-qdrant:
+    desc: Initialize the database qdrant
+    cmds:
+    - python prepare_db_qdrant.py init
 
   default:
     desc: List available tasks
