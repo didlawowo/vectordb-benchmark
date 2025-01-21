@@ -3,3 +3,5 @@ data/dataset.csv filter=lfs diff=lfs merge=lfs -text
 data/questions.txt filter=lfs diff=lfs merge=lfs -text
 data/testset.json filter=lfs diff=lfs merge=lfs -text
 data/output_dataset.jsonl.gz filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+data/videogame/output_dataset.jsonl.gz filter=lfs diff=lfs merge=lfs -text

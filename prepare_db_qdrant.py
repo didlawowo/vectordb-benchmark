@@ -20,7 +20,7 @@ def init_qdrant():
         client = QdrantClient(
             host=os.environ.get("QDRANT_HOST", "localhost"),
             port=os.environ.get("QDRANT_PORT", 6333),
-            timeout=300,  # 5 minutes timeout
+            timeout=30,  
         )
 
         collections = client.get_collections().collections
@@ -52,7 +52,7 @@ def insert_batch(points):
 
 def load_and_insert_data(jsonl_path: str):
     """Load data from JSONL file and insert into Qdrant"""
-    batch_size = 1000  # Réduit de 10000 à 1000
+    batch_size = 10  # Réduit de 10000 à 1000
     points = []
 
     total_inserted = 0
@@ -77,14 +77,22 @@ def load_and_insert_data(jsonl_path: str):
                     str(x[0]): float(x[1])
                     for x in zip(sparse_dict["indices"], sparse_dict["data"])
                 }
+                # for hf dataset
 
+                # point = models.PointStruct(
+                #     id=(entry["prompt_id"]),
+                #     vector=entry["dense_vector"],
+                #     payload={
+                #         "text": entry["text"][:19900],
+                #         "sparse_vector": sparse_vector,
+                #     },
+                # )
                 point = models.PointStruct(
-                    id=(entry["prompt_id"]),
+                    id=int(entry["id"]),
                     vector=entry["dense_vector"],
                     payload={
-                        # "prompt": entry["prompt"],
-                        "text": entry["text"],
-                        # "description": entry["description"][:19900],
+                        "name": entry["name"],
+                        "description": entry["description"][:19900],
                         "sparse_vector": sparse_vector,
                     },
                 )

@@ -116,7 +116,8 @@ def load_and_process_data(max_documents=None):
                     texts.append(full_text)
                     entries.append({
                         'prompt_id': item['prompt_id'],
-                        'text': full_text[:1000]
+                        'prompt': item['prompt'],
+                        'messages': item['messages']
                     })
                     
                 except Exception as e:

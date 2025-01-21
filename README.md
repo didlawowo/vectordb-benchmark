@@ -3,13 +3,26 @@
 
 A comprehensive toolkit for benchmarking Milvus and Qdrant vector databases using Locust as a load testing tool. The project focuses on comparing performance with hybrid search (dense and sparse vectors) using the BGE-M3 model.
 
+## Disclamer
+
+This project is a work in progress. It is not ready for production use. It is a proof of concept to compare the performance of Milvus and Qdrant with hybrid search.
+Qrant is currently tested  with other dataset, u may have to change the code to use videogame dataset.
+
 ## Features 🌟
 
 - Hybrid search benchmarking (dense + sparse vectors)
 - BGE-M3 embeddings generation
-- Automated test scenarios
-- Detailed performance metrics
-- Docker-based deployments
+- Provide observability with openlit
+- Detailed performance metrics with locust
+- Docker-based deployments for all tool
+
+## How it works
+
+- download a dataset (u can use from videogame directory)
+- prepare the dataset to get jsonl (you mave have to modify the prepare-dataset-hf.py to get the correct format)
+- insert the dataset into milvus and qdrant
+- run the benchmark with locust
+- check the results with openlit
 
 ## Quick Start 🚀
 
@@ -17,6 +30,7 @@ A comprehensive toolkit for benchmarking Milvus and Qdrant vector databases usin
 
 - Python 3.11
 - pip
+- task
 - pipenv
 - Docker and Docker Compose
 
@@ -43,15 +57,16 @@ task start-qdrant  # For Qdrant
 
 ## Project Structure 📂
 
-```
+```text
 .
-├── data/                      # Data files
-│   ├── dataset.csv           # Source dataset
-│   ├── questions.txt         # Test queries
+├── data/videogame            # Data files exmaple for videogame
+│   ├── dataset.csv           # Source original dataset
+│   ├── questions.txt         # pre generated question for the dataset
 │   └── testset.json         # Processed queries
-├── tools/                    # Data preparation tools
-│   ├── prepare_dataset.py    # Dataset processing
-│   └── prepare_custom_query*.py # Query preparation
+├── openlt/                    # Openlit configuration
+
+│   ├── prepare_dataset*.py    # Dataset processing
+│   └── prepare_custom_query*.py # Query preparation (if you want to generate it)
 ├── milvus/                   # Milvus configuration
 └── qdrant/                   # Qdrant configuration
 ```
@@ -82,7 +97,7 @@ python tools/prepare_custom_query-qdrant.py generate_testset
 
 ## Running Benchmarks 📊
 
-1. Start Locust:
+1. Start Locust example:
 
 ```bash
 locust -f benchmark_locust_milvus.py --host http://localhost:19530
@@ -158,12 +173,24 @@ DATABASE_NAME = "gamedb"
 ## Task Automation 🤖
 
 ```bash
-task: Available tasks:
-* bootstrap:     Setup environment
-* start-milvus:  Start Milvus stack
-* start-qdrant:  Start Qdrant stack
-* prepare-data:  Prepare dataset
-* init-db:       Initialize database
+task
+task: [default] task --list
+task: Available tasks for this project:
+* bootstap:              Bootstrap the environment
+* build:                 Build Docker image
+* check-qdrant:          Check the qdrant colletion
+* default:               List available tasks
+* download-hf-ds:        Download the dataset from huggingface
+* extract-gz-data:       extract the data
+* init-db-milvus:        Initialize the database
+* init-db-qdrant:        Initialize the database qdrant
+* prepare-data-hf:       Prepare the dataset before insert
+* shell:                 load python shell
+* start-milvus:          Run the milvus stack
+* start-openlit:         Run the openlit stack
+* start-qdrant:          Run the qdrant stack
+* stop-milvus:           Stop the milvus stack
+* stop-qdrant:           Stop the qdrant stack
 ```
 
 ## Contributing 🤝

@@ -1,13 +1,13 @@
 version: '3'
 
 tasks:
-  download-hf-ds:
-    desc: Download the dataset from huggingface
-    cmds:
-    - "huggingface-cli download  --repo-type dataset  --resume-download  --max-workers 8  --local-dir ./data/trivia  mandarjoshi/trivia_qa"
+  # download-hf-ds:
+  #   desc: Download the dataset from huggingface
+  #   cmds:
+  #   - "huggingface-cli download  --repo-type dataset  --resume-download  --max-workers 8  --local-dir ./data/trivia  mandarjoshi/trivia_qa"
 
-  prepare-data:
-    desc: Prepare the dataset before insert
+  prepare-data-hf:
+    desc: Prepare the dataset huggingface before insert
     cmds:
     - python prepare_dataset_hf.py
 
@@ -58,7 +58,7 @@ tasks:
     - docker compose down
 
   extract-gz-data:
-    desc: extract the data
+    desc: extract the data videogame jsonl
     cmds:
     - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
 
@@ -70,7 +70,12 @@ tasks:
   init-db-qdrant:
     desc: Initialize the database qdrant
     cmds:
-    - python prepare_db_qdrant.py ./data/output_dataset.jsonl
+    - python prepare_db_qdrant.py ./data/videogame/output_dataset.jsonl
+
+  check-qdrant:
+    desc: Check the qdrant colletion
+    cmds:
+    - curl http://localhost:6333/collections/benchmark
 
   default:
     desc: List available tasks
