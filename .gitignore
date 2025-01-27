@@ -17,8 +17,9 @@ head.txt
 # Milvus
 milvus_benchmark.log
 **.jsonl
-milvus/volumes
+docker/**/volumes
 # **.gz
 data/output_dataset.jsonl.gz
 corrupted_lines.txt
 **.parquet
+archives/

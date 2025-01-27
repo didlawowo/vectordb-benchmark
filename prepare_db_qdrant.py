@@ -5,7 +5,7 @@ from qdrant_client.http import models
 import json
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from common import DIMENSION
+from config.common import DIMENSION
 import openlit
 
 openlit.init(otlp_endpoint="http://127.0.0.1:4318")
@@ -43,12 +43,10 @@ def init_qdrant():
         logger.error(f"Error with Qdrant initialization: {e}")
         raise
 
-
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def insert_batch(points):
     """Insert a batch of points with retry logic"""
     client.upsert(collection_name=COLLECTION_NAME, points=points)
-
 
 def load_and_insert_data(jsonl_path: str):
     """Load data from JSONL file and insert into Qdrant"""

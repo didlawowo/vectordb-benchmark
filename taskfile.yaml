@@ -1,44 +1,40 @@
 version: '3'
 
 tasks:
-  # download-hf-ds:
-  #   desc: Download the dataset from huggingface
-  #   cmds:
-  #   - "huggingface-cli download  --repo-type dataset  --resume-download  --max-workers 8  --local-dir ./data/trivia  mandarjoshi/trivia_qa"
 
-  prepare-data-hf:
-    desc: Prepare the dataset huggingface before insert
+  prepare-dataset-jsonl:
+    desc: Prepare the dataset jsonl huggingface before insert
     cmds:
     - python prepare_dataset_hf.py
 
-  build:
-    desc: Build Docker image
-    cmds:
-    - docker compose build --push
-
   start-milvus:
     desc: Run the milvus stack
-    dir: milvus
+    dir: docker/milvus
     cmds:
     - docker compose up -d
 
-  stop-milvus:
-    desc: Stop the milvus stack
-    dir: milvus
-    cmds:
-    - docker compose down
-
   start-openlit:
     desc: Run the openlit stack
-    dir: openlit
+    dir: docker/openlit
     cmds:
     - docker compose up -d
 
   start-qdrant:
     desc: Run the qdrant stack
-    dir: qdrant
+    dir: docker/qdrant
     cmds:
     - docker compose up -d
+
+  start-chroma:
+    desc: Run the chroma stack
+    dir: docker/chroma
+    cmds:
+    - docker compose up -d
+
+  show-head-jsonl:
+    desc: Show the head of the jsonl file processed
+    cmds:
+    - head -n 1 data/processed_dataset.jsonl | jq
 
   shell:
     desc: load python shell
@@ -51,31 +47,25 @@ tasks:
     - pipenv install
     - pipenv shell && uv pip install -r requirements.txt
 
-  stop-qdrant:
-    desc: Stop the qdrant stack
-    dir: qdrant
-    cmds:
-    - docker compose down
-
-  extract-gz-data:
-    desc: extract the data videogame jsonl
-    cmds:
-    - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
+  # extract-gz-data:
+  #   desc: extract the data videogame jsonl
+  #   cmds:
+  #   - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
 
   init-db-milvus:
     desc: Initialize the database
     cmds:
-    - python prepare_db_milvus.py init
+    - python prepare_db.py setup --backend milvus --data-file data/processed_dataset.jsonl
+
+  init-db-chrioma:
+    desc: Initialize the database chroma
+    cmds:
+    - python prepare_db.py setup --backend chroma --data-file data/processed_dataset.jsonl
 
   init-db-qdrant:
     desc: Initialize the database qdrant
     cmds:
-    - python prepare_db_qdrant.py ./data/videogame/output_dataset.jsonl
-
-  check-qdrant:
-    desc: Check the qdrant colletion
-    cmds:
-    - curl http://localhost:6333/collections/benchmark
+    - python prepare_db.py setup --backend qdrant --data-file data/processed_dataset.jsonl
 
   default:
     desc: List available tasks

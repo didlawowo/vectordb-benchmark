@@ -71,6 +71,14 @@ task start-qdrant  # For Qdrant
 └── qdrant/                   # Qdrant configuration
 ```
 
+## Availables Endpoints
+
+- milvus UI: <http://127.0.0.1:3002/#/databases/>
+- milvus Store:  <http://127.0.0.1:19530>
+- qdrant UI: <http://127.0.0.1:6333>
+- openlit UI: <http://127.0.0.1:3000>
+- Locust: <http://127.0.0.1:8009>
+
 ## Data Preparation 🛠️
 
 1. Extract dataset:

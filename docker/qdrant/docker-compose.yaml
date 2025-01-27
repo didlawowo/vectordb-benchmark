@@ -1,0 +1,11 @@
+services:  
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    volumes:
+      - qdrant:/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+volumes:
+  qdrant:
