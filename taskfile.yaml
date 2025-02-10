@@ -47,7 +47,7 @@ tasks:
     cmds:
     - python 2-prepare_db.py setup --backend milvus --data-file data/processed_dataset.jsonl
 
-  init-db-chrioma:
+  init-db-chromadb:
     desc: Initialize the database chroma
     cmds:
     - python 2-prepare_db.py setup --backend chroma --data-file data/processed_dataset.jsonl
@@ -56,6 +56,16 @@ tasks:
     desc: Initialize the database qdrant
     cmds:
     - python 2-prepare_db.py setup --backend qdrant --data-file data/processed_dataset.jsonl
+
+  get-qdrant-dashboard:
+    desc: Get the qdrant dashboard
+    cmds:
+    - open http://localhost:6333/dashboard#/collections
+
+  get-milvus-dashboard:
+    desc: Get the milvus dashboard
+    cmds:
+    - open http://localhost:3002/#/
 
   prepare-dataset-jsonl:
     desc: Prepare the dataset jsonl huggingface before insert

@@ -5,7 +5,7 @@ services:
     volumes:
     - chroma-data:/chroma/chroma
     ports:
-      - "8000:8000"
+      - "8001:8000"
   
 volumes:
   chroma-data:

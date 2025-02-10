@@ -1,6 +1,6 @@
 services:
   clickhouse:
-    image: clickhouse/clickhouse-server:24.8-alpine
+    image: clickhouse/clickhouse-server:24.4.1
     container_name: clickhouse
     environment:
       CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}   
@@ -8,7 +8,7 @@ services:
     volumes:
       - clickhouse-data:/var/lib/clickhouse
     ports:
-      - "9001:9000" 
+      - "9000:9000" 
       - "8123:8123" 
     restart: always
   
@@ -24,7 +24,7 @@ services:
       INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
       SQLITE_DATABASE_URL: file:/app/client/data/data.db
     ports:
-      - "3001:3000"
+      - "3000:3000"
     depends_on:
       - clickhouse
     volumes:
@@ -32,7 +32,7 @@ services:
     restart: always
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.117.0
+    image: otel/opentelemetry-collector-contrib:0.94.0
     container_name: otel-collector
     environment:
       INIT_DB_HOST: clickhouse

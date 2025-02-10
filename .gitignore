@@ -16,7 +16,7 @@ head.txt
 
 # Milvus
 milvus_benchmark.log
-**.jsonl
+data/processed_dataset.jsonl
 docker/**/volumes
 # **.gz
 data/output_dataset.jsonl.gz
