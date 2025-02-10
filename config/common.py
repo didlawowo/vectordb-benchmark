@@ -6,3 +6,4 @@
 # TESTSET_SOURCE_FILE = "data/videogame/questions.txt"
 TESTSET_FILE = "data/testset.json"
 CHUNCK_SIZE = 400
+MODEL_NAME = "BAAI/bge-m3"

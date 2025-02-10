@@ -36,7 +36,26 @@ testset = []
 with open("data/testset.json", "r") as file:
     testset = json.load(file)
 
+def _calculate_recall(self, results, ground_truth, k=10):
+    """
+    📊 Calcule le recall@k
+    """
+    retrieved_ids = set(r["id"] for r in results[:k])
+    relevant_ids = set(ground_truth)
+    
+    if not relevant_ids:
+        return 0.0
+        
+    return len(retrieved_ids.intersection(relevant_ids)) / len(relevant_ids)
 
+def _record_metrics(self, recall, latency):
+    """
+    📈 Enregistre les métriques pour analyse ultérieure
+    """
+    self.metrics["recall_at_10"].append(recall)
+    self.metrics["latency"].append(latency)
+    
+    
 def calculate_sparse_score(query_sparse, doc_sparse):
     try:
         # Vérification de la structure du vecteur sparse
@@ -74,6 +93,39 @@ class SearchQdrantUser(User):
         except Exception as e:
             logger.error(f"Failed to initialize Qdrant connection: {e}")
             raise Exception(f"Qdrant initialization failed: {e}")
+
+    @task(weight=3)
+    def test_dense_search(self):
+        start_time = time.time()
+        
+        try:
+            test = random.choice(testset)
+            dense_vector = test["dense_vector"]
+            ground_truth = test.get("ground_truth", [])  # 📝 Add ground truth to testset
+
+            response = self.client.search(
+                collection_name=COLLECTION_NAME,
+                query_vector=dense_vector,
+                limit=50,
+                with_payload=["id", "name"],  # 🔍 Only fetch needed fields
+                search_params=models.SearchParams(hnsw_ef=128)
+            )
+            
+            # 📊 Calculate metrics
+            recall_at_k = calculate_recall(response, ground_truth, k=10)
+            
+        except Exception as e:
+            logger.error(f"❌ Dense search error: {e}")
+            raise
+        finally:
+            total_time = int((time.time() - start_time) * 1000)
+            events.request.fire(
+                request_type="Qdrant",
+                name="dense_search",
+                response_time=total_time,
+                response_length=len(response),
+                context={"recall": recall_at_k}
+            )
 
     @task
     def test_hybrid_search_on_qdrant(self):

@@ -16,7 +16,8 @@ from pymilvus import (
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from tenacity import retry, stop_after_attempt, wait_exponential
-from loguru import logger
+from sentence_transformers import SentenceTransformer
+
 
 
 # 🔧 Configuration class
@@ -463,7 +464,10 @@ class QdrantStore(VectorStore):
         super().__init__(config)
         self.client = None
         self.batch_size = 10
+        from config.common import MODEL_NAME
         from config.qdrant import DIMENSION
+        self.model = SentenceTransformer(MODEL_NAME)
+        self.instruction = "Represent this sentence for searching relevant passages:"
 
         self.dimension = DIMENSION
         self.stats = {
@@ -517,15 +521,25 @@ class QdrantStore(VectorStore):
         sample_point = points[0]
         logger.debug("Sample point structure:")
         logger.debug(f"- ID: {sample_point.id}")
-        logger.debug(f"- Vector type: {type(sample_point.vector)}")
-        logger.debug(f"- Vector length: {len(sample_point.vector)}")
+        # logger.debug(f"- Vector type: {type(sample_point.vector)}")
+        # logger.debug(f"- Vector length: {len(sample_point.vector)}")
         logger.debug(f"- Payload keys: {sample_point.payload.keys()}")
 
         self.client.upsert(
             collection_name=self.config.store_name, points=points, wait=True
         )
 
-    def insert_data(self, data_file: str) -> int:
+    def encode_text(self, text: str) -> List[float]:
+        """
+        📝 Encode le texte avec BGE-M3 en suivant les bonnes pratiques du modèle
+        """
+        return self.model.encode(
+            self.instruction + text,
+            normalize_embeddings=True  # BGE recommande la normalisation
+        ).tolist()
+
+
+    def insert_data_old_way(self, data_file: str) -> int:
         """Load and insert data with both dense and sparse vectors"""
         if not self.client:
             raise ValueError("❌ Client not initialized!")
@@ -557,18 +571,20 @@ class QdrantStore(VectorStore):
                         vector={
                             "default": record["vectors"][
                                 "dense"
-                            ]  # Nom correspondant à la config
+                            ]  
                         },
                         payload={
+                            "id": record["texts"]["prompt_id"],
                             "title": record["texts"]["prompt"][:250],
                             "content": record["texts"]["full_context"][:19900],
                             "metadata": record.get("metadata", {}),
-                            # Stockage du vecteur sparse dans le payload
                             "sparse_vector": sparse_vector,
                             "original_hash_id": record[
                                 "id"
                             ],  # Sauvegarde du hash original
                         },
+                       
+                    
                     )
                     points.append(point)
                     self.id_counter += 1
@@ -617,6 +633,95 @@ class QdrantStore(VectorStore):
 
         return self.stats["total_inserted"]
 
+    def insert_data(self, data_file: str) -> int:
+        if not self.client:
+            raise ValueError("❌ Client not initialized!")
+
+        points_buffer = []
+        
+        with open(data_file, "r", encoding="utf-8") as f:
+            for line_number, line in enumerate(f, 1):
+                try:
+                    conversation = json.loads(line)
+                    new_points = self.process_conversation(conversation)
+                    points_buffer.extend(new_points)
+
+                    # Insertion par lots quand nous atteignons batch_size
+                    if len(points_buffer) >= self.batch_size:
+                        self._insert_batch(points_buffer[:self.batch_size])
+                        self.stats["total_inserted"] += len(points_buffer[:self.batch_size])
+                        points_buffer = points_buffer[self.batch_size:]
+                        
+                        logger.info(f"📊 Progress: {self.stats['total_inserted']} messages inserted")
+
+                except json.JSONDecodeError as e:
+                    logger.error(f"❌ Ligne {line_number} corrompue: {str(e)}")
+                    self.stats["corrupted_lines"] += 1
+                except Exception as e:
+                    logger.error(f"❌ Erreur ligne {line_number}: {str(e)}")
+                    self.stats["corrupted_lines"] += 1
+
+        # Traitement des points restants
+        if points_buffer:
+            self._insert_batch(points_buffer)
+            self.stats["total_inserted"] += len(points_buffer)
+
+        return self.stats["total_inserted"]
+
+    def process_conversation(self, conversation: Dict) -> List[models.PointStruct]:
+        points = []
+        conversation_id = conversation["id"]
+        
+        # Nous traitons d'abord le prompt initial de manière spéciale
+        prompt_vector = self.encode_text(conversation["texts"]["prompt"])
+        prompt_point = models.PointStruct(
+            id=self.id_counter,
+            vector={
+                "default": prompt_vector 
+            },
+            payload={
+                "conversation_id": conversation_id,
+                "prompt_id": conversation["texts"]["prompt_id"],
+                "prompt": conversation["texts"]["prompt"],
+                "message": conversation["texts"]["user_messages"],
+                "full_context": conversation["texts"]["full_context"],
+
+               "message_type": "prompt",
+                "position": 0,
+            
+                "metadata": conversation["metadata"]
+            }
+        )
+        points.append(prompt_point)
+        self.id_counter += 1
+
+        # # Ensuite nous traitons chaque message de la conversation
+        # for idx, message in enumerate(conversation["texts"]["user_messages"]):
+        #     # Création du vecteur dense pour le message
+        #     dense_vector = self.encode_text(message)
+            
+        #     point = models.PointStruct(
+        #         id=self.id_counter,
+        #         vector={
+        #             "default": dense_vector
+        #         },
+        #         payload={
+        #             "conversation_id": conversation_id,
+        #             "prompt_id": conversation["texts"]["prompt_id"],
+        #             "content": message,
+        #             "message_type": "user" if idx % 2 == 0 else "assistant",
+        #             "position": idx + 1,
+        #             "metadata": {
+        #                 "total_messages": len(conversation["texts"]["user_messages"]),
+        #                 "is_prompt": False,
+        #                 "previous_message_id": self.id_counter - 1 if idx > 0 else None
+        #             }
+        #         }
+        #     )
+        #     points.append(point)
+        #     self.id_counter += 1
+        #     logger.debug(f"🔄 Added point {self.id_counter} to batch")
+        return points
 
 # 🏭 Factory for creating vector stores
 def create_vector_store(backend: str = "milvus") -> VectorStore:
