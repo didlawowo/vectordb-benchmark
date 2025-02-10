@@ -41,7 +41,7 @@ tasks:
     cmds:
     - pipenv shell
 
-  bootstap:
+  bootstrap:
     desc: Bootstrap the environment
     cmds:
     - pipenv install
