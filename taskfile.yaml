@@ -2,10 +2,16 @@ version: '3'
 
 tasks:
 
-  prepare-dataset-jsonl:
-    desc: Prepare the dataset jsonl huggingface before insert
+  shell:
+    desc: load python shell
     cmds:
-    - python prepare_dataset_hf.py
+    - pipenv shell
+
+  bootstrap:
+    desc: Bootstrap the environment
+    cmds:
+    - pipenv install
+    - pipenv shell && uv pip install -r requirements.txt
 
   start-milvus:
     desc: Run the milvus stack
@@ -31,22 +37,6 @@ tasks:
     cmds:
     - docker compose up -d
 
-  show-head-jsonl:
-    desc: Show the head of the jsonl file processed
-    cmds:
-    - head -n 1 data/processed_dataset.jsonl | jq
-
-  shell:
-    desc: load python shell
-    cmds:
-    - pipenv shell
-
-  bootstrap:
-    desc: Bootstrap the environment
-    cmds:
-    - pipenv install
-    - pipenv shell && uv pip install -r requirements.txt
-
   # extract-gz-data:
   #   desc: extract the data videogame jsonl
   #   cmds:
@@ -55,19 +45,29 @@ tasks:
   init-db-milvus:
     desc: Initialize the database
     cmds:
-    - python prepare_db.py setup --backend milvus --data-file data/processed_dataset.jsonl
+    - python 2-prepare_db.py setup --backend milvus --data-file data/processed_dataset.jsonl
 
   init-db-chrioma:
     desc: Initialize the database chroma
     cmds:
-    - python prepare_db.py setup --backend chroma --data-file data/processed_dataset.jsonl
+    - python 2-prepare_db.py setup --backend chroma --data-file data/processed_dataset.jsonl
 
   init-db-qdrant:
     desc: Initialize the database qdrant
     cmds:
-    - python prepare_db.py setup --backend qdrant --data-file data/processed_dataset.jsonl
+    - python 2-prepare_db.py setup --backend qdrant --data-file data/processed_dataset.jsonl
 
-  default:
-    desc: List available tasks
+  prepare-dataset-jsonl:
+    desc: Prepare the dataset jsonl huggingface before insert
     cmds:
-    - task --list
+    - python 1-prepare_dataset.py
+
+  show-head-jsonl:
+    desc: Show the head of the jsonl file processed
+    cmds:
+    - head -n 1 data/processed_dataset.jsonl | jq
+
+default:
+  desc: List available tasks
+  cmds:
+  - task --list
