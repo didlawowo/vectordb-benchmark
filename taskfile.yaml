@@ -37,10 +37,15 @@ tasks:
     cmds:
     - docker compose up -d
 
-  # extract-gz-data:
-  #   desc: extract the data videogame jsonl
-  #   cmds:
-  #   - gzcat data/output_dataset.jsonl.gz > data/output_dataset.jsonl
+  prepare-dataset-jsonl:
+    desc: Prepare the dataset jsonl huggingface before insert
+    cmds:
+    - python 1-prepare_dataset.py
+
+  generate-testset:
+    desc: Generate the testset query
+    cmds:
+    - python 3-generate-testset.py
 
   init-db-milvus:
     desc: Initialize the database
@@ -66,11 +71,6 @@ tasks:
     desc: Get the milvus dashboard
     cmds:
     - open http://localhost:3002/#/
-
-  prepare-dataset-jsonl:
-    desc: Prepare the dataset jsonl huggingface before insert
-    cmds:
-    - python 1-prepare_dataset.py
 
   show-head-jsonl:
     desc: Show the head of the jsonl file processed
