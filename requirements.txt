@@ -152,7 +152,7 @@ tenacity==9.0.0
 threadpoolctl==3.5.0
 tiktoken==0.7.0
 tokenizers==0.19.1
-torch==2.5.1
+torch==2.7.1
 tqdm==4.67.1
 transformers==4.44.2
 trec-car-tools==2.6
