@@ -131,7 +131,7 @@ tiktoken==0.7.0
 tokenizers==0.19.1
 torch==2.5.1
 tqdm==4.67.1
-transformers==4.48.0
+transformers==4.52.1
 trec-car-tools==2.6
 typing-inspect==0.9.0
 typing_extensions==4.12.2
