@@ -161,7 +161,7 @@ typing_extensions==4.12.2
 tzdata==2024.2
 ujson==5.10.0
 unlzw3==0.2.3
-urllib3==2.3.0
+urllib3==2.6.3
 vectordb-benchmark @ file:///Users/chris/Documents/GitHub/public/vectordb-benchmark
 warc3-wet==0.2.5
 warc3-wet-clueweb09==0.2.5
