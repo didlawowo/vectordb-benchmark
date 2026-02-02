@@ -57,7 +57,7 @@ Jinja2==3.1.5
 jiter==0.8.2
 jmespath==1.0.1
 joblib==1.4.2
-llama-index-core==0.12.10.post1
+llama-index-core==0.13.0
 llama-index-vector-stores-qdrant==0.4.2
 locust==2.32.5
 loguru==0.7.3
