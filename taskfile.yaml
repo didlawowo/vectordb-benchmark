@@ -77,6 +77,28 @@ tasks:
     cmds:
     - curl http://localhost:6333/collections/benchmark
 
+  start-pgvector:
+    desc: Run the pgvector stack
+    dir: pgvector
+    cmds:
+    - docker compose up -d
+
+  stop-pgvector:
+    desc: Stop the pgvector stack
+    dir: pgvector
+    cmds:
+    - docker compose down
+
+  init-db-pgvector:
+    desc: Initialize the database pgvector
+    cmds:
+    - python prepare_db_pgvector.py ./data/videogame/output_dataset.jsonl
+
+  check-pgvector:
+    desc: Check the pgvector table
+    cmds:
+    - docker exec pgvector psql -U benchmark -d benchmark -c "SELECT COUNT(*) FROM benchmark;"
+
   default:
     desc: List available tasks
     cmds:

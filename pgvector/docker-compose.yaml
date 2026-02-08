@@ -1,0 +1,21 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:pg17
+    container_name: pgvector
+    environment:
+      POSTGRES_USER: benchmark
+      POSTGRES_PASSWORD: benchmark
+      POSTGRES_DB: benchmark
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: >
+      postgres
+        -c shared_buffers=256MB
+        -c effective_cache_size=512MB
+        -c maintenance_work_mem=256MB
+        -c max_parallel_maintenance_workers=4
+
+volumes:
+  pgvector_data:

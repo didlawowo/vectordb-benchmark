@@ -1,12 +1,12 @@
 
-# Milvus-Qdrant Benchmark 🔍
+# Vector DB Benchmark 🔍
 
-A comprehensive toolkit for benchmarking Milvus and Qdrant vector databases using Locust as a load testing tool. The project focuses on comparing performance with hybrid search (dense and sparse vectors) using the BGE-M3 model.
+A comprehensive toolkit for benchmarking Milvus, Qdrant, and pgvector vector databases using Locust as a load testing tool. The project focuses on comparing performance with hybrid search (dense and sparse vectors) using the BGE-M3 model.
 
 ## Disclamer
 
-This project is a work in progress. It is not ready for production use. It is a proof of concept to compare the performance of Milvus and Qdrant with hybrid search.
-Qrant is currently tested  with other dataset, u may have to change the code to use videogame dataset.
+This project is a work in progress. It is not ready for production use. It is a proof of concept to compare the performance of Milvus, Qdrant, and pgvector with hybrid search.
+Qdrant is currently tested with other dataset, u may have to change the code to use videogame dataset.
 
 ## Features 🌟
 
@@ -20,7 +20,7 @@ Qrant is currently tested  with other dataset, u may have to change the code to 
 
 - download a dataset (u can use from videogame directory)
 - prepare the dataset to get jsonl (you mave have to modify the prepare-dataset-hf.py to get the correct format)
-- insert the dataset into milvus and qdrant
+- insert the dataset into milvus, qdrant, and/or pgvector
 - run the benchmark with locust
 - check the results with openlit
 
@@ -51,8 +51,9 @@ export MILVUS_HOST=localhost
 export MILVUS_PORT=19530
 
 # Start databases
-task start-milvus  # For Milvus
-task start-qdrant  # For Qdrant
+task start-milvus    # For Milvus
+task start-qdrant    # For Qdrant
+task start-pgvector  # For pgvector (PostgreSQL)
 ```
 
 ## Project Structure 📂
@@ -68,7 +69,8 @@ task start-qdrant  # For Qdrant
 │   ├── prepare_dataset*.py    # Dataset processing
 │   └── prepare_custom_query*.py # Query preparation (if you want to generate it)
 ├── milvus/                   # Milvus configuration
-└── qdrant/                   # Qdrant configuration
+├── qdrant/                   # Qdrant configuration
+└── pgvector/                 # pgvector (PostgreSQL) configuration
 ```
 
 ## Data Preparation 🛠️
@@ -101,6 +103,7 @@ python tools/prepare_custom_query-qdrant.py generate_testset
 
 ```bash
 locust -f benchmark_locust_milvus.py --host http://localhost:19530
+locust -f benchmark_locust_pgvector.py --host http://localhost:5432
 ```
 
 2. Access UI at `http://localhost:8089` and configure:
@@ -190,6 +193,10 @@ task: Available tasks for this project:
 * start-openlit:         Run the openlit stack
 * start-qdrant:          Run the qdrant stack
 * stop-milvus:           Stop the milvus stack
+* start-pgvector:        Run the pgvector stack
+* stop-pgvector:         Stop the pgvector stack
+* init-db-pgvector:      Initialize the database pgvector
+* check-pgvector:        Check the pgvector table
 * stop-qdrant:           Stop the qdrant stack
 ```
 
