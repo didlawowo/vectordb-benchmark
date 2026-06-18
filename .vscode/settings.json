@@ -1,29 +1,54 @@
 {
-    "python.defaultInterpreterPath": "./.venv/bin/python",
-    "python.linting.enabled": true,
-    "python.linting.ruffEnabled": true,
-    "python.linting.flake8Enabled": false,
-    "python.linting.pycodestyleEnabled": false,
-    "python.linting.pylintEnabled": false,
-    "python.formatting.provider": "none",
-    "python.sortImports.args": ["--profile", "black"],
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
-    },
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/*.pyc": true,
-        "**/*.pyo": true,
-        "**/*.pyd": true,
-        ".pytest_cache": true,
-        ".coverage": true,
-        ".mypy_cache": true,
-        ".ruff_cache": true
-    },
-    "python.testing.pytestEnabled": true,
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestArgs": [
-        "tests"
-    ]
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.linting.enabled": true,
+  "python.linting.ruffEnabled": true,
+  "python.linting.flake8Enabled": false,
+  "python.linting.pycodestyleEnabled": false,
+  "python.linting.pylintEnabled": false,
+  "python.formatting.provider": "none",
+  "python.sortImports.args": [
+    "--profile",
+    "black"
+  ],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/*.pyo": true,
+    "**/*.pyd": true,
+    ".pytest_cache": true,
+    ".coverage": true,
+    ".mypy_cache": true,
+    ".ruff_cache": true
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "workbench.colorTheme": "Default High Contrast Light",
+  "peacock.color": "#f5a865",
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#f8c394",
+    "activityBar.background": "#f8c394",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#f18c35",
+    "activityBarBadge.foreground": "#15202b",
+    "commandCenter.border": "#15202b99",
+    "sash.hoverBorder": "#f8c394",
+    "statusBar.background": "#f5a865",
+    "statusBar.foreground": "#15202b",
+    "statusBarItem.hoverBackground": "#f18c35",
+    "statusBarItem.remoteBackground": "#f5a865",
+    "statusBarItem.remoteForeground": "#15202b",
+    "titleBar.activeBackground": "#f5a865",
+    "titleBar.activeForeground": "#15202b",
+    "titleBar.inactiveBackground": "#f5a86599",
+    "titleBar.inactiveForeground": "#15202b99"
+  },
+  "window.title": "🟠 public · vectordb-benchmark ${separator}${activeEditorShort}"
 }
