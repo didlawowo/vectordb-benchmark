@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: read
       issues: write
-    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
+    runs-on: arc-runner-vectordb-benchmark
     steps:
       - uses: actions/checkout@v7
         with:
@@ -27,7 +27,7 @@ jobs:
           POLICY_REPOSITORY: ${{ github.repository }}
           POLICY_TOKEN: ${{ github.token }}
           POLICY_EVENT_PATH: ${{ github.event_path }}
-        run: python .github/scripts/mutation_policy.py notify
+        run: python3 .github/scripts/mutation_policy.py notify
 
   mutation-gate:
     if: github.event_name == 'pull_request_target'
@@ -35,7 +35,10 @@ jobs:
       contents: read
       issues: read
       pull-requests: read
-    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
+    # This job executes PR-controlled .ci/mutation.sh on the repository's
+    # dedicated ARC runner. Credentials are scrubbed and Python mutations use
+    # a dedicated virtual environment before the script is invoked.
+    runs-on: arc-runner-vectordb-benchmark
     steps:
       - name: Checkout trusted policy
         uses: actions/checkout@v7
@@ -51,7 +54,7 @@ jobs:
           POLICY_REPOSITORY: ${{ github.repository }}
           POLICY_TOKEN: ${{ github.token }}
           POLICY_EVENT_PATH: ${{ github.event_path }}
-        run: python .github/scripts/mutation_policy.py classify
+        run: python3 .github/scripts/mutation_policy.py classify
 
       - name: Checkout pull request code
         if: steps.policy.outputs.required == 'true'
@@ -62,11 +65,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Install uv for Python mutation engines
+        if: steps.policy.outputs.required == 'true'
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: false
+
       - name: Run mandatory mutation testing
         if: steps.policy.outputs.required == 'true'
         shell: bash
         env:
           MUTATION_POLICY_LABELS: ${{ steps.policy.outputs.labels }}
+          MUTATION_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          MUTATION_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           if [[ ! -f .ci/mutation.sh ]]; then
@@ -82,8 +93,12 @@ jobs:
           env -i \
             PATH="$PATH" \
             HOME="$HOME" \
+            UV_CACHE_DIR="${UV_CACHE_DIR:-}" \
+            UV_LINK_MODE="${UV_LINK_MODE:-copy}" \
             CI=true \
             MUTATION_POLICY_LABELS="$MUTATION_POLICY_LABELS" \
+            MUTATION_BASE_SHA="$MUTATION_BASE_SHA" \
+            MUTATION_HEAD_SHA="$MUTATION_HEAD_SHA" \
             bash .ci/mutation.sh
 
       - name: Mutation testing not required
