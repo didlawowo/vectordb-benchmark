@@ -35,9 +35,8 @@ jobs:
       contents: read
       issues: read
       pull-requests: read
-    # This job executes PR-controlled .ci/mutation.sh on the repository's
-    # dedicated ARC runner. Credentials are scrubbed and Python mutations use
-    # a dedicated virtual environment before the script is invoked.
+    # PR-controlled mutation code runs with credentials scrubbed. The trusted
+    # bootstrap is copied from the base revision before the PR checkout.
     runs-on: arc-runner-vectordb-benchmark
     steps:
       - name: Checkout trusted policy
@@ -55,6 +54,13 @@ jobs:
           POLICY_TOKEN: ${{ github.token }}
           POLICY_EVENT_PATH: ${{ github.event_path }}
         run: python3 .github/scripts/mutation_policy.py classify
+
+      - name: Preserve trusted mutation bootstrap
+        if: steps.policy.outputs.required == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          install -m 0755 .github/scripts/mutation_bootstrap.sh "${RUNNER_TEMP}/mutation-bootstrap.sh"
 
       - name: Checkout pull request code
         if: steps.policy.outputs.required == 'true'
@@ -80,26 +86,24 @@ jobs:
           MUTATION_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
-          if [[ ! -f .ci/mutation.sh ]]; then
-            echo "::error::.ci/mutation.sh is required for high-risk issues (${MUTATION_POLICY_LABELS})."
-            exit 1
-          fi
-          if ! grep -Eiq 'mutmut[[:space:]]+run|gremlins[[:space:]]+unleash|stryker([^[:alnum:]]+[^[:space:]]+)*[[:space:]]+run|cargo[[:space:]]+mutants|pitest|infection' .ci/mutation.sh; then
-            echo "::error::.ci/mutation.sh must invoke a supported real mutation engine."
-            exit 1
-          fi
-          # The mutation script comes from the PR. Give it no forge credentials
-          # or inherited secrets; only the minimum process environment it needs.
+          trusted_bootstrap="${RUNNER_TEMP}/mutation-bootstrap.sh"
+          [[ -x "$trusted_bootstrap" ]] || {
+            echo "::error::Trusted mutation bootstrap is missing."
+            exit 20
+          }
+          mutation_cache="${RUNNER_TEMP}/mutation-uv-cache"
+          mkdir -p "$mutation_cache"
           env -i \
             PATH="$PATH" \
             HOME="$HOME" \
-            UV_CACHE_DIR="${UV_CACHE_DIR:-}" \
+            RUNNER_TEMP="$RUNNER_TEMP" \
+            UV_CACHE_DIR="$mutation_cache" \
             UV_LINK_MODE="${UV_LINK_MODE:-copy}" \
             CI=true \
             MUTATION_POLICY_LABELS="$MUTATION_POLICY_LABELS" \
             MUTATION_BASE_SHA="$MUTATION_BASE_SHA" \
             MUTATION_HEAD_SHA="$MUTATION_HEAD_SHA" \
-            bash .ci/mutation.sh
+            bash "$trusted_bootstrap"
 
       - name: Mutation testing not required
         if: steps.policy.outputs.required != 'true'
